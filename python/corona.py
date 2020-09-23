@@ -1,5 +1,6 @@
-##http://ncov.mohw.go.kr/
-
+## 파일명 : corona.py
+## 용도 : 코로나 관련 정보 업데이트
+## 실행 시간 : 오전 11시
 import requests
 from bs4 import BeautifulSoup
 import os

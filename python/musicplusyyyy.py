@@ -1,3 +1,7 @@
+## 파일명 : musicplusyyyy.py
+## 용도 : 음악 채우기용 배치파일 (실시간 TOP200)
+## 실행 시간 : 현재 사용 안함
+
 from selenium import webdriver
 import time
 import pymongo

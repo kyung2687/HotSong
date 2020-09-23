@@ -1,3 +1,7 @@
+## 파일명 : gingeop.py
+## 용도 : 운영시 에러나 특별 음악 스트리밍에 사용
+## 실행 시간 : 필요시 사용
+
 import time
 import datetime
 import pymongo

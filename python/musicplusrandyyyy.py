@@ -1,3 +1,6 @@
+## 파일명 : musicplusrandyyyy.py
+## 용도 : 음악 채우기용 배치파일
+## 실행 시간 : 오전 2시
 from selenium import webdriver
 import time
 import pymongo

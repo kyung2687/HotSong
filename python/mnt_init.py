@@ -1,3 +1,7 @@
+## 파일명 : mnt_init.py
+## 용도 : 모니터 초기 화면으로 업데이트
+## 실행 시간 : 필요시 사용
+
 import os
 import time
 import glob

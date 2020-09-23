@@ -1,3 +1,7 @@
+## 파일명 : anuodate.py
+## 용도 : 생일이나 결혼기념일 업데이트 배치
+## 실행 시간 : 오전 1시
+
 import time
 import datetime
 import pymongo

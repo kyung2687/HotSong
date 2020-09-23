@@ -1,3 +1,5 @@
+## 사용안함
+
 from selenium import webdriver
 import time
 import pymongo
@@ -105,11 +107,11 @@ for i in range(cnt) :
             driver.find_element_by_xpath("//*[@id=\"login-another\"]/div[2]/a[1]").click()
             time.sleep(3)
         except :
-            pass
+            print()
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         dr = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > span.fp-duration')[0].text.strip().split(':')
-        print(str(i + 1) + "번째 노래 길이 : " + str(int(dr[0]) * 60 + int(dr[1])))
+        print(int(dr[0]) * 60 + int(dr[1]))
         duration.append(int(dr[0]) * 60 + int(dr[1]))
         all_duration = all_duration + int(dr[0]) * 60 + int(dr[1])
 
@@ -119,7 +121,7 @@ driver.implicitly_wait(3)
 try :
     driver.find_element_by_xpath("//*[@id=\"login-another\"]/div[2]/a[1]").click()
 except :
-    pass
+    print('next')
 driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[1]").click()
 #if random_str_yn : 
 #    driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[2]").click()
@@ -127,6 +129,8 @@ driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[4]"
 
 driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click() #일시정지
 time.sleep(1)
+
+
 html = driver.page_source
 soup = BeautifulSoup(html, 'html.parser')
 text = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip()
@@ -137,16 +141,15 @@ while(text != '재생') :
     time.sleep(1)
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
+    print(soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip())
     text = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip()
 
 download_duration = int(time.time() - download_start)
 #시간 정지
-print('준비 시간 : ' + str(download_duration))
-print('총 노래 시간 : ' + str(all_duration))
-print('SLEEP 시간 : ' + str(900 - download_duration - all_duration))
-time.sleep(900 - download_duration - all_duration - 5)
+print('download_daration : ' + str(download_duration))
+print('all_duration : ' + str(all_duration))
 
-driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/div[2]/a").send_keys('\n') #음소거
+driver.find_element_by_xpath("/html/body/div[1]/div[2]/div[2]/div[2]/div/div[1]/div[3]/div[2]/div/em[6]").click() #음소거
 driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click() #재생
 for i in range(cnt) :
     streamdata = db.streamings.find({})[0]
