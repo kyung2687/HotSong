@@ -1,99 +1,174 @@
-## 파일명 : gingeop.py
-## 용도 : 운영시 에러나 특별 음악 스트리밍에 사용
-## 실행 시간 : 필요시 사용
-
+from selenium import webdriver
 import time
-import datetime
 import pymongo
 from pymongo import MongoClient
+import json
+from bs4 import BeautifulSoup
+import random
+import datetime
 
-today = '0000'
-birthday = {
-    '0421' : '송호용 선임',
-    '0422' : '송준수 수석',
-    '0427' : '김택규 수석, 김경민 선임',
-    '0429' : '이윤수 선임',
-    '0503' : '박재희 차장',
-    '0506' : '최선용 부장',
-    '0512' : '배정연 대리',
-    '0513' : '맹다슬 사원',
-    '0515' : '박영준 부장',
-    '0525' : '선정완 선임',
-    '0601' : '이동엽 수석',
-    '0602' : '김진 대리',
-    '0613' : '조용상 차장',
-    '0619' : '이동진 수석',
-    '0620' : '최석규 수석',
-    '0623' : '임정희 차장',
-    '0707' : '정호중 수석',
-    '0710' : '황정교 부장',
-    '0715' : '박동희 대리',
-    '0721' : '윤성 수석',
-    '0804' : '오상록 부장',
-    '0809' : '이정민 선임',
-    '0813' : '정보경 차장',
-    '0819' : '이영미 수석',
-    '0826' : '조준희 사원',
-    '0828' : '김화종 수석',
-    '0831' : '김나현 대리',
-    '0901' : '김훈균 수석',
-    '0908' : '박현준 과장',
-    '0915' : '전진미 대리',
-    '0917' : '이주현 수석',
-    '0927' : '홍상돈 수석',
-    '1022' : '윤경민 선임',
-    '1109' : '한승희 과장',
-    '1115' : '박양식 부장',
-    '1119' : '김형기 부장',
-    '1123' : '이대헌 부장',
-    '1227' : '최구훈 대리, 안대석 수석',
-    '1228' : '김봉수 차장',
-}
+today = datetime.datetime.today().strftime("%m%d")
+holiday = tuple()
+holiday = (
+    '0101','0124','0127',
+    '0415','0430','0505',
+    '0930','1001','1002',
+    '1009','1225'
+    )
 
-weddinganniversary = {
-    '0512' : '김화종 수석',
-    '0901' : '김동구 수석, 이동진 수석',
-    '0903' : '이영미 수석',
-    '1011' : '정호중 수석',
-    '1017' : '안대석 수석',
-    '1023' : '최석규 수석',
-    '1024' : '설성윤 수석',
-    '1105' : '이주현 수석',
-    '1122' : '김훈균 수석',
-    '1123' : '이병식 수석',
-    '1126' : '안상경 부장',
-    '1206' : '김동우 수석',
-    '1214' : '이임호 수석',
-}
+if today in holiday :
+    print('today is holiday')
+    sys.exit()
+elif time.localtime().tm_wday==5 :
+    print('today is holiday')
+    sys.exit()
+elif time.localtime().tm_wday==6 :
+    print('today is holiday')
+    sys.exit()
 
-notice = {}
+cnt=8
 
+download_start = time.time()
+
+kakao_id = "rudals2392@gmail.com"
+kakao_pw = "dbwls2705"
+driver = webdriver.Chrome('C:/Users/admin/Desktop/HotSong/chromedriver')
 conn = MongoClient('127.0.0.1')
-
 db = conn.admin
 collect = db.songs
+songs = collect.find({"streamingYN":False})
+song = []
+random_str_yn = True
+umsoge = True
 
-content = ""
+driver.implicitly_wait(3)
+driver.get('https://www.genie.co.kr/chart/top200')
 
+#로그인 화면 이동
+driver.find_element_by_xpath("//*[@id=\"gnb\"]/div/div/button").click()
+driver.find_element_by_xpath("//*[@id=\"gnb\"]/div/div/div/ul/li[1]/a").click()
 
-if today in birthday :
-    content = content + birthday[today] + "의 생일입니다 !^"
-    print(birthday[today] + "의 생일입니다 !")
+#로그인
+driver.switch_to.window(driver.window_handles[1])
+driver.find_element_by_xpath("//*[@id=\"id_email_2\"]").send_keys(kakao_id)
+driver.find_element_by_xpath("//*[@id=\"id_password_3\"]").send_keys(kakao_pw)
+driver.find_element_by_xpath("//*[@id=\"login-form\"]/fieldset/div[8]/button[1]").click()
 
-if today in weddinganniversary :
-    content = content + weddinganniversary[today] + "의 결혼기념일입니다 !^"
-    print(weddinganniversary[today] + "의 결혼기념일입니다 !")
+time.sleep(5)
 
-if content != "" :
-    content = content + '모두 축하해주세요 !'
-    print('모두 축하해주세요 !')
+driver.switch_to.window(driver.window_handles[0])
 
-if content == "" :
-    if today in notice :
-        content = notice[today]
-    else :
-        content = "출입 시 반드시 손 소독제로 손을 깨끗이 합시다"
-        print('출입 시 반드시 손 소독제로 손을 깨끗이 합시다')
+#노래 담기
+#모두 담기#driver.find_element_by_xpath("//*[@id=\"body-content\"]/div[6]/div/div[1]/input").click()
+#if not a:
+#  print("List is empty")
+all_duration = 0
+duration = []
+
+for i in range(cnt) : 
+    try : 
+        driver.switch_to.window(driver.window_handles[0])
+        song.append(songs[i])
+        serch_content = songs[i]["title"] + " " + songs[i]["singer"]
+        driver.find_element_by_xpath("//*[@id=\"sc-fd\"]").clear()
+        driver.find_element_by_xpath("//*[@id=\"sc-fd\"]").send_keys(serch_content)
+        driver.find_element_by_xpath("//*[@id=\"frmGNB\"]/fieldset/input[3]").click()
+        driver.find_element_by_xpath("//*[@id=\"body-content\"]/div/div[2]/div/table/tbody/tr[1]/td[6]/a").click()
+        random_str_yn = False
+    except IndexError :
+        rdm = random.randint(1, 49)
+        driver.get('https://www.genie.co.kr/chart/top200?ditc=D&ymd=20200706&hh=15&rtm=Y&pg=' + str(random.randint(1,4)))
+        driver.implicitly_wait(3)
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        title = soup.select('#body-content > div.newest-list > div > table > tbody > tr:nth-child('+ str(rdm) +') > td.info > a.title.ellipsis')[0].text.strip()
+        singer = soup.select('#body-content > div.newest-list > div > table > tbody > tr:nth-child('+ str(rdm) +') > td.info > a.artist.ellipsis')[0].text.strip()
+        image = soup.select('#body-content > div.newest-list > div > table > tbody > tr:nth-child('+ str(rdm) +') > td:nth-child(3) > a > img')[0].get('src').strip()
+        task = "지니뮤직 TOP200"
+        name = ""
+        song1 = { 
+            "title" : title,
+            "singer": singer,
+            "image" : image,
+            "task"  : task,
+            "name"  : name
+        }
+        driver.find_element_by_xpath("//*[@id=\"body-content\"]/div[6]/div/table/tbody/tr["+ str(rdm) +"]/td[6]/a").click()
+        song.append(song1)
+    finally :
+        driver.implicitly_wait(5)
+        driver.switch_to.window(driver.window_handles[1])
+        if umsoge : 
+            driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/div[2]/a").send_keys('\n') #음소거
+            umsoge = False
+        try :
+            driver.find_element_by_xpath("//*[@id=\"login-another\"]/div[2]/a[1]").click()
+            time.sleep(3)
+        except :
+            print()
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        dr = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > span.fp-duration')[0].text.strip().split(':')
+        print(int(dr[0]) * 60 + int(dr[1]))
+        duration.append(int(dr[0]) * 60 + int(dr[1]))
+        all_duration = all_duration + int(dr[0]) * 60 + int(dr[1])
+
+#노래 재생
+driver.switch_to.window(driver.window_handles[1])
+driver.implicitly_wait(3)
+try :
+    driver.find_element_by_xpath("//*[@id=\"login-another\"]/div[2]/a[1]").click()
+except :
+    print('next')
+driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[1]").click()
+#if random_str_yn : 
+#    driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[2]").click()
+driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/button[4]").click()
+
+driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click() #일시정지
+time.sleep(1)
+html = driver.page_source
+soup = BeautifulSoup(html, 'html.parser')
+text = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip()
+
+text = '일지정지'
+while(text != '재생') :
+    driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click() #일시정지
+    time.sleep(1)
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+    print(soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip())
+    text = soup.select('#fp-audio > div > div.fp-ui > div.fp-controls > a')[0].text.strip()
+
+download_duration = int(time.time() - download_start)
+#시간 정지
+print('download_daration : ' + str(download_duration))
+print('all_duration : ' + str(all_duration))
+time.sleep((60*38-40) - download_duration - all_duration - 10)
+
+driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/div[2]/a").send_keys('\n') #음소거
+driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click() #재생
+for i in range(cnt) :
+    streamdata = db.streamings.find({})[0]
+    db.streamings.update_one(streamdata, { "$set": {"str":True, "song": song[i]}} )
+    time.sleep(duration[i] + 1)
+    try : collect.update_one(song[i], { "$set": {"streamingYN":True, "up_date":datetime.datetime.now().strftime('%Y-%m-%d')}} )
+    except Exception as ex :
+        print('에러가 발생 했습니다', ex)
 
 streamdata = db.streamings.find({})[0]
-db.streamings.update_one(streamdata, { "$set": {"content" : content}} )
+db.streamings.update_one(streamdata, { "$set": {"str":False, "song": {}}})
+
+
+#while(1) :
+    #streamdata = db.streamings.find({})[0]
+    #streamdata = db.streamings.find({})[0]
+    #db.streamings.update_one(streamdata, { "$set": {"str":True, "song": song[i]}} )
+#    time.sleep(4)
+#driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/a").click()
+
+#for i in range(6, 0, -1) : 
+#    driver.find_element_by_xpath("//*[@id=\"fp-audio\"]/div/div[1]/div[3]/div[2]/div/em[" + str(i) +"]").click()
+#    time.sleep(1)
+#
+driver.quit()
