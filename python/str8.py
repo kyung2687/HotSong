@@ -6,25 +6,9 @@ import json
 from bs4 import BeautifulSoup
 import random
 import datetime
+import sys
 
 today = datetime.datetime.today().strftime("%m%d")
-holiday = tuple()
-holiday = (
-    '0101','0124','0127',
-    '0415','0430','0505',
-    '0930','1001','1002',
-    '1009','1225'
-    )
-
-if today in holiday :
-    print('today is holiday')
-    sys.exit()
-elif time.localtime().tm_wday==5 :
-    print('today is holiday')
-    sys.exit()
-elif time.localtime().tm_wday==6 :
-    print('today is holiday')
-    sys.exit()
 
 cnt=8
 
@@ -32,7 +16,9 @@ download_start = time.time()
 
 kakao_id = "rudals2392@gmail.com"
 kakao_pw = "dbwls2705"
-driver = webdriver.Chrome('C:/Users/admin/Desktop/HotSong/chromedriver')
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--remote-debugging-port=9222")
+driver = webdriver.Chrome('C:/Users/admin/Desktop/HotSong/chromedriver', chrome_options=chrome_options)
 conn = MongoClient('127.0.0.1')
 db = conn.admin
 collect = db.songs

@@ -9,6 +9,7 @@ from pymongo import MongoClient
 
 today = datetime.datetime.today().strftime("%m%d")
 birthday = {
+    '0326' : '안상경 부장',
     '0421' : '송호용 선임',
     '0422' : '송준수 수석',
     '0427' : '김택규 수석, 김경민 선임',

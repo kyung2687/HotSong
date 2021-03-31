@@ -1,0 +1,1 @@
+py C:/Users/admin/Desktop/HotSong/python/str8.py
